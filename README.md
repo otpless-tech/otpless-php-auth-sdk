@@ -174,3 +174,81 @@ $auth = new OtplessAuth();
 
 $auth->verifyToken($token,$clientId,$clientSecret);
 ```
+
+
+
+
+> ### 5. Send OTP
+
+This method help to send OTP to your users and OTP issued by only `otpless.com`
+
+```php
+sendOtp(sendTo, orderId, hash, clientId, clientSecret)
+```
+
+#### Method Params:
+
+| Params       | Data type | Mandatory | Constraints | Remarks                           |
+| ------------ | --------- | --------- | ----------- | --------------------------------- |
+| sendTo       | String    | true      |             | Mobile Number of your users       |
+| orderId      | String    | true      |             | Unique Order id                   |
+| hash         | String    | true      |             | Hash                              |
+| clientId     | String    | true      |             | Your OTPLess `Client Id`          |
+| clientSecret | String    | true      |             | Your OTPLess `Client Secret`      |
+
+
+#### Return
+
+```json
+{"success":true,"orderId":"V112444","refId":"108","message":"success"}
+```
+---
+
+> ### 6. ReSend OTP
+
+This method help to resend OTP to your users and OTP issued by only `otpless.com`
+
+
+```php
+resendOtp(orderId, clientId, clientSecret)
+```
+#### Method Params:
+
+| Params       | Data type | Mandatory | Constraints | Remarks                               |
+| ------------ | --------- | --------- | ----------- | --------------------------------------|
+| orderId      | String    | true      |             | Unique Order id(same as send method)  |
+| clientId     | String    | true      |             | Your OTPLess `Client Id`              |
+| clientSecret | String    | true      |             | Your OTPLess `Client Secret`          |
+
+#### Return
+
+```json
+{"success":true,"orderId":"V112444","refId":"108","message":"success"}
+```
+---
+
+
+> ### 7. Verify OTP
+
+This method help to Verify OTP to your users and OTP issued by only `otpless.com`
+
+##### Method Signature:
+
+```php
+verifyOtp(sendTo, orderId, otp, clientId, clientSecret)
+```
+
+#### Method Params:
+
+| Params       | Data type | Mandatory | Constraints | Remarks                               |
+| ------------ | --------- | --------- | ----------- | --------------------------------------|
+| sendTo       | String    | true      |             | Mobile Number of your users           |
+| orderId      | String    | true      |             | Unique Order id                       |
+| otp          | String    | true      |             | Enter otp here                        |
+| clientId     | String    | true      |             | Your OTPLess `Client Id`              |
+| clientSecret | String    | true      |             | Your OTPLess `Client Secret`          |
+
+
+```json
+{"success":true,"isOTPVerified":true}
+```

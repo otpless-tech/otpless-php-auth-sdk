@@ -8,9 +8,12 @@ use Exception;
 use Otpless\OIDCMasterConfig;
 use Otpless\PublicKeyResponse;
 use Otpless\UserDetail;
+use Otpless\OtpResponse;
+use Otpless\OtpVerificationResponse;
 use Otpless\MagicLinkTokens;
 
 use \Firebase\JWT\Key;
+use GuzzleHttp\Exception\ClientException;
 
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
@@ -114,7 +117,7 @@ class OTPLessAuth
     }
 
 
-    public function generateMagicLink($mobile, $email, $clientId, $clientSecret, $redirectURI,$channel)
+    public function generateMagicLink($mobile, $email, $clientId, $clientSecret, $redirectURI, $channel)
     {
         try {
             $client = new Client();
@@ -235,5 +238,144 @@ class OTPLessAuth
 
         return openssl_pkey_get_public($publicKey);
     }
-}
 
+
+    public function sendOtp($sendTo, $orderId, $hash, $clientId, $clientSecret)
+    {
+        try {
+            $url = 'https://auth.otpless.app/auth/otp/send';
+            $data = [
+                'sendTo' => $sendTo,
+                'orderId' => $orderId,
+                'hash' => $hash,
+            ];
+
+            $client = new Client();
+
+            $response = $client->post($url, [
+                'headers' => [
+                    'clientId' => $clientId,
+                    'clientSecret' => $clientSecret,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $data,
+            ]);
+
+            $body = $response->getBody();
+            $data = json_decode($body, true);
+
+
+            $otpResponse = new OtpResponse();
+            $otpResponse->orderId = $orderId;
+            $otpResponse->refId = $data['refId'];
+            $otpResponse->message = "success";
+            return json_encode($otpResponse);
+        } catch (ClientException $e) {
+            return $this->handleClientExpectionForOtp($e);
+        } catch (\Exception $e) {
+            return  $this->handleExpectionForOtp();
+        }
+    }
+
+
+    public function resendOtp($orderId, $clientId, $clientSecret)
+    {
+        try {
+            $url = 'https://auth.otpless.app/auth/otp/resend';
+            $data = [
+                'orderId' => $orderId
+            ];
+
+            $client = new Client();
+
+            $response = $client->post($url, [
+                'headers' => [
+                    'clientId' => $clientId,
+                    'clientSecret' => $clientSecret,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $data,
+            ]);
+
+            $body = $response->getBody();
+            $data = json_decode($body, true);
+
+
+            $otpResponse = new OtpResponse();
+            $otpResponse->orderId = $orderId;
+            $otpResponse->refId = $data['refId'];
+            $otpResponse->message = "success";
+            return json_encode($otpResponse);
+        } catch (ClientException $e) {
+            return $this->handleClientExpectionForOtp($e);
+        } catch (\Exception $e) {
+            return  $this->handleExpectionForOtp();
+        }
+    }
+
+
+    public function verifyOtp($sendTo, $orderId, $otp, $clientId, $clientSecret)
+    {
+        try{
+            $url = 'https://auth.otpless.app/auth/otp/verify';
+            $data = [
+                'sendTo' => $sendTo,
+                'orderId' => $orderId,
+                'otp' => $otp,
+            ];
+
+            $client = new Client();
+
+            $response = $client->post($url, [
+                'headers' => [
+                    'clientId' => $clientId,
+                    'clientSecret' => $clientSecret,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $data,
+            ]);
+
+            $body = $response->getBody();
+            $data = json_decode($body, true);
+
+
+            $otpResponse = new OtpVerificationResponse();
+            $otpResponse->isOTPVerified = $data['isOTPVerified'];
+            return json_encode($otpResponse);
+        }catch (ClientException $e) {
+            return $this->handleClientExpectionForOtp($e);
+        } catch (\Exception $e) {
+            return  $this->handleExpectionForOtp();
+        }
+    }
+
+    /**helper functions */
+    private function handleClientExpectionForOtp(ClientException $e)
+    {
+        $response = $e->getResponse();
+        $body = $response->getBody();
+        $errorData = json_decode($body, true);
+
+        $otpResponse = new OtpResponse();
+        $otpResponse->success = false;
+        $otpResponse->message = $errorData['message'] ?? "Something went wrong";
+
+        $otpResponseArray = (array) $otpResponse;
+
+        return json_encode(array_filter($otpResponseArray, function ($value) {
+            return $value !== null;
+        }));
+    }
+    private function handleExpectionForOtp()
+    {
+        $otpResponse = new OtpResponse();
+        $otpResponse->success = false;
+        $otpResponse->message = "Something went wrong";
+
+        $otpResponseArray = (array) $otpResponse;
+
+        return json_encode(array_filter($otpResponseArray, function ($value) {
+            return $value !== null;
+        }));
+    }
+}
