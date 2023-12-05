@@ -265,30 +265,44 @@ class OTPLessAuth
                 'hash' => $hash,
             ];
 
-            $client = new Client();
+            $headers = [
+                'clientId: ' . $clientId,
+                'clientSecret: ' . $clientSecret,
+                'Content-Type: application/json',
+            ];
 
-            $response = $client->post($url, [
-                'headers' => [
-                    'clientId' => $clientId,
-                    'clientSecret' => $clientSecret,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $data,
-            ]);
+            $ch = curl_init();
 
-            $body = $response->getBody();
-            $data = json_decode($body, true);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+            $responseBody = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                throw new \Exception('cURL error: ' . curl_error($ch));
+            }
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            curl_close($ch);
+
+            $responseData = json_decode($responseBody, true);
+
+            if ($httpCode >= 400) {
+                throw new \Exception($responseData['message'] ?? 'Something went wrong', $httpCode);
+            }
 
             $otpResponse = new OtpResponse();
             $otpResponse->orderId = $orderId;
-            $otpResponse->refId = $data['refId'];
+            $otpResponse->refId = $responseData['refId'];
             $otpResponse->message = "success";
+
             return json_encode($otpResponse);
-        } catch (ClientException $e) {
-            return $this->handleClientExpectionForOtp($e);
         } catch (\Exception $e) {
-            return  $this->handleExpectionForOtp();
+            return $this->handleExpectionForOtp($e->getMessage());
         }
     }
 
@@ -301,30 +315,43 @@ class OTPLessAuth
                 'orderId' => $orderId
             ];
 
-            $client = new Client();
+            $headers = [
+                'clientId: ' . $clientId,
+                'clientSecret: ' . $clientSecret,
+                'Content-Type: application/json',
+            ];
 
-            $response = $client->post($url, [
-                'headers' => [
-                    'clientId' => $clientId,
-                    'clientSecret' => $clientSecret,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $data,
-            ]);
+            $ch = curl_init();
 
-            $body = $response->getBody();
-            $data = json_decode($body, true);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+            $responseBody = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                throw new \Exception('cURL error: ' . curl_error($ch));
+            }
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            curl_close($ch);
+
+            $responseData = json_decode($responseBody, true);
+
+            if ($httpCode >= 400) {
+                throw new \Exception($responseData['message'] ?? 'Something went wrong', $httpCode);
+            }
 
             $otpResponse = new OtpResponse();
             $otpResponse->orderId = $orderId;
-            $otpResponse->refId = $data['refId'];
+            $otpResponse->refId = $responseData['refId'];
             $otpResponse->message = "success";
             return json_encode($otpResponse);
-        } catch (ClientException $e) {
-            return $this->handleClientExpectionForOtp($e);
         } catch (\Exception $e) {
-            return  $this->handleExpectionForOtp();
+            return $this->handleExpectionForOtp($e->getMessage());
         }
     }
 
@@ -339,28 +366,41 @@ class OTPLessAuth
                 'otp' => $otp,
             ];
 
-            $client = new Client();
+            $headers = [
+                'clientId: ' . $clientId,
+                'clientSecret: ' . $clientSecret,
+                'Content-Type: application/json',
+            ];
 
-            $response = $client->post($url, [
-                'headers' => [
-                    'clientId' => $clientId,
-                    'clientSecret' => $clientSecret,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $data,
-            ]);
+            $ch = curl_init();
 
-            $body = $response->getBody();
-            $data = json_decode($body, true);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+            $responseBody = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                throw new \Exception('cURL error: ' . curl_error($ch));
+            }
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            curl_close($ch);
+
+            $responseData = json_decode($responseBody, true);
+
+            if ($httpCode >= 400) {
+                throw new \Exception($responseData['message'] ?? 'Something went wrong', $httpCode);
+            }
 
             $otpResponse = new OtpVerificationResponse();
-            $otpResponse->isOTPVerified = $data['isOTPVerified'];
+            $otpResponse->isOTPVerified = $responseData['isOTPVerified'];
             return json_encode($otpResponse);
-        } catch (ClientException $e) {
-            return $this->handleClientExpectionForOtp($e);
         } catch (\Exception $e) {
-            return  $this->handleExpectionForOtp();
+            return  $this->handleExpectionForOtp($e->getMessage());
         }
     }
 
@@ -381,11 +421,11 @@ class OTPLessAuth
             return $value !== null;
         }));
     }
-    private function handleExpectionForOtp()
+    private function handleExpectionForOtp($message)
     {
         $otpResponse = new OtpResponse();
         $otpResponse->success = false;
-        $otpResponse->message = "Something went wrong";
+        $otpResponse->message = $message;
 
         $otpResponseArray = (array) $otpResponse;
 
