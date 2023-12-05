@@ -120,7 +120,6 @@ class OTPLessAuth
     public function generateMagicLink($mobile, $email, $clientId, $clientSecret, $redirectURI, $channel)
     {
         try {
-            $client = new Client();
             $baseURL = "https://oidc.otpless.app/auth/v1/authorize";
             $queryParams = array(
                 "client_id" => $clientId,
@@ -144,13 +143,29 @@ class OTPLessAuth
 
             $queryString = http_build_query($queryParams);
             $finalURL = $baseURL . '?' . $queryString;
-            $response = $client->get($finalURL);
 
-            $response = $client->get($finalURL);
-            $responseBody = $response->getBody()->getContents();
+            $ch = curl_init();
+
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_URL, $finalURL);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Execute cURL session and fetch the result
+            $responseBody = curl_exec($ch);
+
             $responseData = json_decode($responseBody, true);
 
+            if (!isset($responseData['requestIds'])) {
+                $userDetail = new UserDetail();
+                $userDetail->success = false;
+                $userDetail->errorMsg = $responseData['message'];
 
+                $userDetailArray = (array) $userDetail;
+
+                return json_encode(array_filter($userDetailArray, function ($value) {
+                    return $value !== null;
+                }));
+            }
             $magicLinkTokens = new MagicLinkTokens($responseData);
             return json_encode($magicLinkTokens);
         } catch (\Exception $e) {
@@ -316,7 +331,7 @@ class OTPLessAuth
 
     public function verifyOtp($sendTo, $orderId, $otp, $clientId, $clientSecret)
     {
-        try{
+        try {
             $url = 'https://auth.otpless.app/auth/otp/verify';
             $data = [
                 'sendTo' => $sendTo,
@@ -342,7 +357,7 @@ class OTPLessAuth
             $otpResponse = new OtpVerificationResponse();
             $otpResponse->isOTPVerified = $data['isOTPVerified'];
             return json_encode($otpResponse);
-        }catch (ClientException $e) {
+        } catch (ClientException $e) {
             return $this->handleClientExpectionForOtp($e);
         } catch (\Exception $e) {
             return  $this->handleExpectionForOtp();
