@@ -183,7 +183,7 @@ $auth->verifyToken($token,$clientId,$clientSecret);
 This method help to send OTP to your users and OTP issued by only `otpless.com`
 
 ```php
-sendOtp(sendTo, orderId, hash, clientId, clientSecret)
+sendOtp(sendTo, orderId, hash, clientId, clientSecret,otpLength,channel)
 ```
 
 #### Method Params:
@@ -195,6 +195,8 @@ sendOtp(sendTo, orderId, hash, clientId, clientSecret)
 | hash         | String    | true      |             | Hash                              |
 | clientId     | String    | true      |             | Your OTPLess `Client Id`          |
 | clientSecret | String    | true      |             | Your OTPLess `Client Secret`      |
+| otpleLength  | String    | true      |             | Lenght ot Otp                     |
+| channel      | String    | true      |             | channel to send otp               |
 
 
 #### Return

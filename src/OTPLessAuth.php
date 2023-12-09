@@ -255,7 +255,7 @@ class OTPLessAuth
     }
 
 
-public function sendOtp($sendTo, $orderId, $hash, $clientId, $clientSecret,$otpLength,$channel)
+    public function sendOtp($sendTo, $orderId, $hash, $clientId, $clientSecret, $otpLength, $channel)
     {
         try {
             $url = 'https://auth.otpless.app/auth/otp/send';
@@ -268,7 +268,7 @@ public function sendOtp($sendTo, $orderId, $hash, $clientId, $clientSecret,$otpL
             if (isset($otpLength) && !is_null($otpLength)) {
                 $data['otpLength'] = $otpLength;
             }
-            
+
             if (isset($channel) && !is_null($channel)) {
                 $data['channel'] = $channel;
             }
