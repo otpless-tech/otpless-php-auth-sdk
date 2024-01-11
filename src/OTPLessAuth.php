@@ -255,15 +255,25 @@ class OTPLessAuth
     }
 
 
-    public function sendOtp($sendTo, $orderId, $hash, $clientId, $clientSecret, $otpLength, $channel, $templateId)
+    public function sendOtp($phoneNumber, $email, $orderId, $expiry, $hash, $clientId, $clientSecret, $otpLength, $channel)
     {
         try {
-            $url = 'https://auth.otpless.app/auth/otp/send';
-            $data = [
-                'sendTo' => $sendTo,
-                'orderId' => $orderId,
-                'hash' => $hash,
-            ];
+            $url = 'https://auth.otpless.app/auth/otp/v1/send';
+
+            if (isset($phoneNumber) && !is_null($phoneNumber)) {
+                $data['phoneNumber'] = $phoneNumber;
+            }
+
+            if (isset($email) && !is_null($email)) {
+                $data['email'] = $email;
+            }
+            if (isset($orderId) && !is_null($orderId)) {
+                $data['orderId'] = $orderId;
+            }
+
+            if (isset($expiry) && !is_null($expiry)) {
+                $data['expiry'] = $expiry;
+            }
 
             if (isset($otpLength) && !is_null($otpLength)) {
                 $data['otpLength'] = $otpLength;
@@ -273,10 +283,10 @@ class OTPLessAuth
                 $data['channel'] = $channel;
             }
 
-            if (isset($templateId) && !is_null($templateId)) {
-                $data['templateId'] = $templateId;
-            }
 
+            if (isset($hash) && !is_null($hash)) {
+                $data['hash'] = $hash;
+            }
 
 
             $headers = [
@@ -311,9 +321,9 @@ class OTPLessAuth
 
             $otpResponse = new OtpResponse();
             $otpResponse->orderId = $orderId;
-            
+
             $otpResponse->refId = $responseData['refId'] ?? null;
-            
+
             $otpResponse->message = "success";
 
             return json_encode($otpResponse);
@@ -326,7 +336,7 @@ class OTPLessAuth
     public function resendOtp($orderId, $clientId, $clientSecret)
     {
         try {
-            $url = 'https://auth.otpless.app/auth/otp/resend';
+            $url = 'https://auth.otpless.app/auth/otp/v1/resend';
             $data = [
                 'orderId' => $orderId
             ];
@@ -372,15 +382,22 @@ class OTPLessAuth
     }
 
 
-    public function verifyOtp($sendTo, $orderId, $otp, $clientId, $clientSecret)
+    public function verifyOtp($phoneNumber,$email, $orderId, $otp, $clientId, $clientSecret)
     {
         try {
-            $url = 'https://auth.otpless.app/auth/otp/verify';
+            $url = 'https://auth.otpless.app/auth/otp/v1/verify';
             $data = [
-                'sendTo' => $sendTo,
                 'orderId' => $orderId,
                 'otp' => $otp,
             ];
+
+            if (isset($phoneNumber) && !is_null($phoneNumber)) {
+                $data['phoneNumber'] = $phoneNumber;
+            }
+
+            if (isset($email) && !is_null($email)) {
+                $data['email'] = $email;
+            }
 
             $headers = [
                 'clientId: ' . $clientId,

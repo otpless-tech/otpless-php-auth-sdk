@@ -183,21 +183,24 @@ $auth->verifyToken($token,$clientId,$clientSecret);
 This method help to send OTP to your users and OTP issued by only `otpless.com`
 
 ```php
-sendOtp(sendTo, orderId, hash, clientId, clientSecret,otpLength,channel,templateId)
+sendOtp(phoneNumber, email, orderId, expiry, hash, clientId, clientSecret, otpLength, channel)
 ```
 
 #### Method Params:
 
+
 | Params       | Data type | Mandatory | Constraints | Remarks                           |
 | ------------ | --------- | --------- | ----------- | --------------------------------- |
-| sendTo       | String    | true      |             | Mobile Number of your users       |
+| phoneNumber  | String    | true      |             | Mobile Number of your users       |
+| email        | String    | true      |             | Mail Id of your users             |
+| channel      | String    | false     |             | WHATSAPP, SMS                     |
+| hash         | String    | true      |             | Your mobile application Hash      |
 | orderId      | String    | true      |             | Unique Order id                   |
-| hash         | String    | true      |             | Hash                              |
+| expiry       | Int       | false     |             | OTP expiry in sec                 |
+| otpLength    | String    | false     |             | Values like 6 or 4                |
 | clientId     | String    | true      |             | Your OTPLess `Client Id`          |
 | clientSecret | String    | true      |             | Your OTPLess `Client Secret`      |
-| otpleLength  | String    | true      |             | Lenght ot Otp                     |
-| channel      | String    | true      |             | channel to send otp               |
-| templateId   | String    | true      |             | templateId to send otp            |
+
 
 
 #### Return
@@ -238,14 +241,15 @@ This method help to Verify OTP to your users and OTP issued by only `otpless.com
 ##### Method Signature:
 
 ```php
-verifyOtp(sendTo, orderId, otp, clientId, clientSecret)
+verifyOtp(phoneNumber,email, orderId, otp, clientId, clientSecret)
 ```
 
 #### Method Params:
 
 | Params       | Data type | Mandatory | Constraints | Remarks                               |
 | ------------ | --------- | --------- | ----------- | --------------------------------------|
-| sendTo       | String    | true      |             | Mobile Number of your users           |
+| email        | String    | true      |             | Mail Id of your users                 |
+| phoneNumber  | String    | true      |             | Mobile Number of your users           |
 | orderId      | String    | true      |             | Unique Order id                       |
 | otp          | String    | true      |             | Enter otp here                        |
 | clientId     | String    | true      |             | Your OTPLess `Client Id`              |
