@@ -322,7 +322,8 @@ class OTPLessAuth
             $otpResponse = new OtpResponse();
             $otpResponse->orderId = $orderId;
 
-            $otpResponse->refId = $responseData['refId'] ?? null;
+            $otpResponse->refId = $responseData['orderId'] ?? null;
+            $otpResponse->orderId = $responseData['orderId'] ?? null;
 
             $otpResponse->message = "success";
 
