@@ -282,8 +282,9 @@ class OTPLessAPIAuth
 
     }
 
-    public function checkOtpStatus($clientId, $clientSecret, $url, $requestId)
+    public function checkStatus($clientId, $clientSecret, $requestId)
     {
+        $url = "https://auth.otpless.app/auth/v1/status";
         try {
             $headers = array(
                 "clientId: $clientId",
